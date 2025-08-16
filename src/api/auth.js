@@ -1,8 +1,8 @@
 import axios from "axios";
 
 // Base URL for your backend API
-// axios.defaults.baseURL = "https://institute-backend-n2n3.onrender.com";
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://institute-backend-n2n3.onrender.com";
+// axios.defaults.baseURL = "http://localhost:5000";
 
 // Validate token
 export const validateToken = async (token) => {

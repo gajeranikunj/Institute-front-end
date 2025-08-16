@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// axios.defaults.baseURL = "https://institute-backend-n2n3.onrender.com";
-axios.defaults.baseURL = "http://localhost:5000";
+axios.defaults.baseURL = "https://institute-backend-n2n3.onrender.com";
+// axios.defaults.baseURL = "http://localhost:5000";
 
 export const loginUser = async (email, password) => {
   try {
