@@ -13,8 +13,10 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { styled } from "@mui/system";
+import { fontSize, height, styled } from "@mui/system";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
+
+import { MdOutlineInsertPhoto } from "react-icons/md";
 
 // Material Dashboard components
 import MDBox from "components/MDBox";
@@ -28,6 +30,7 @@ import DataTable from "examples/Tables/DataTable";
 
 // API
 import { getallfaculty, addfaculty } from "../../api/faculty";
+import { Link } from "react-router-dom";
 
 // Styled upload box
 const UploadBox = styled("label")({
@@ -95,16 +98,16 @@ function Faculty() {
   const [errors, setErrors] = useState({});
 
   const columns = [
-    { Header: "faculty", accessor: "faculty", width: "30%", align: "left" },
-    { Header: "phone", accessor: "phone", align: "center" },
-    { Header: "email", accessor: "email", align: "center" },
-    { Header: "salary", accessor: "salary", align: "center" },
-    { Header: "students", accessor: "totalStudents", align: "center" },
-    { Header: "expertise", accessor: "expertise", align: "center" },
-    { Header: "experience", accessor: "experienceYears", align: "center" },
-    { Header: "status", accessor: "status", align: "center" },
+    { Header: "Faculty", accessor: "faculty", width: "25%", align: "left" },
+    { Header: "Phone", accessor: "phone", align: "center" },
+    { Header: "Email", accessor: "email", align: "center" },
+    { Header: "Salary", accessor: "salary", align: "center" },
+    { Header: "Students", accessor: "totalStudents", align: "center" },
+    { Header: "Expertise", accessor: "expertise", align: "center" },
+    { Header: "Experience", accessor: "experienceYears", align: "center" },
+    { Header: "Status", accessor: "status", align: "center" },
+    { Header: "Actions", accessor: "actions", align: "center" }, // 👈 added
   ];
-
   // Fetch faculty data
   const fetchFaculties = useCallback(async () => {
     try {
@@ -197,37 +200,113 @@ function Faculty() {
     setInfoOpen(true);
     setOpen(true);
   };
-
   const displayRows = rows.map((row) => {
-    const clickHandler = () => handleDoubleClick(row.originalData);
+    const facultyData = row.originalData;
+
+    // Double click opens details
+    const clickHandler = () => handleDoubleClick(facultyData);
+
     return {
       ...row,
-      salary: `₹${row.salary.toLocaleString()}`,
-      experienceYears: `${row.experienceYears} yrs`,
+
+      // Salary styled
+      salary: (
+        <span style={{ fontWeight: 500, color: "#16a34a" }}>
+          ₹{facultyData.salary.toLocaleString()}
+        </span>
+      ),
+
+      // Experience styled
+      experienceYears: <span style={{ fontWeight: 500 }}>{facultyData.experienceYears} yrs</span>,
+
+      // Faculty column with avatar + name
       faculty: (
-        <div style={{ cursor: "pointer" }} onDoubleClick={clickHandler}>
-          {row.faculty}
+        <div
+          onDoubleClick={clickHandler}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            cursor: "pointer",
+            padding: "6px 8px",
+            borderRadius: "8px",
+            transition: "all 0.2s ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          <Avatar src={facultyData.photo} alt={facultyData.name} sx={{ width: 40, height: 40 }} />
+          <span style={{ fontWeight: 600, color: "#111827" }}>{facultyData.name}</span>
         </div>
       ),
+
+      // Phone
       phone: (
-        <div style={{ cursor: "pointer" }} onDoubleClick={clickHandler}>
-          {row.phone}
-        </div>
+        <Link
+          href={`tel:${facultyData.phone}`} // 👈 tel link
+          underline="hover"
+          style={{ cursor: "pointer", fontWeight: 500, color: "#2563eb" }}
+          onDoubleClick={clickHandler}
+        >
+          {facultyData.phone}
+        </Link>
       ),
+
+      // Email
       email: (
-        <div style={{ cursor: "pointer" }} onDoubleClick={clickHandler}>
-          {row.email}
+        <div
+          style={{
+            cursor: "pointer",
+            color: "#2563eb",
+            fontWeight: 500,
+          }}
+          onDoubleClick={clickHandler}
+        >
+          {facultyData.email}
         </div>
       ),
+
+      // Total Students
       totalStudents: (
-        <div style={{ cursor: "pointer" }} onDoubleClick={clickHandler}>
-          {row.totalStudents}
+        <div style={{ cursor: "pointer", fontWeight: 500 }} onDoubleClick={clickHandler}>
+          👥 {facultyData.totalStudents}
         </div>
       ),
+
+      // Expertise
       expertise: (
-        <div style={{ cursor: "pointer" }} onDoubleClick={clickHandler}>
-          {row.expertise}
+        <div
+          style={{
+            cursor: "pointer",
+            fontSize: "14px",
+            color: "#374151",
+          }}
+          onDoubleClick={clickHandler}
+        >
+          {facultyData.expertise.join(", ")}
         </div>
+      ),
+
+      // Actions column
+      actions: (
+        <Box display="flex" gap={1} justifyContent="center">
+          <Button
+            size="small"
+            variant="outlined"
+            color="info"
+            onClick={() => handleDoubleClick(facultyData)}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            onClick={() => console.log("Delete", facultyData._id)} // 👈 replace with delete API
+          >
+            Delete
+          </Button>
+        </Box>
       ),
     };
   });
@@ -302,76 +381,139 @@ function Faculty() {
         <DialogTitle>{infoOpen ? "Faculty Information" : "Add Faculty"}</DialogTitle>
         {infoOpen ? (
           <DialogContent>
-            <Grid container spacing={2} mt={1}>
+            <Grid container spacing={3} mt={0}>
+              {/* Profile Image */}
               <Grid
                 item
                 xs={12}
+                p={0}
+                width={100}
                 sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 <img
                   src={formData.photo}
-                  alt=""
+                  alt="Profile"
                   style={{
-                    width: "100px",
-                    height: "100px",
+                    width: "120px",
+                    height: "120px",
                     borderRadius: "50%",
-                    objectFit: "cover", // ✅ Keeps aspect ratio
+                    objectFit: "cover",
+                    padding: "0px",
+                    boxShadow: "0px 4px 12px rgba(0,0,0,0.2)", // subtle shadow
                   }}
                 />
               </Grid>
-              <Grid container spacing={2}>
+
+              {/* Info Section */}
+              <Grid container spacing={2} px={2}>
                 {[
-                  { name: "name", label: "Name" },
+                  { name: "name", label: "Full Name" },
                   { name: "email", label: "Email" },
-                  { name: "password", label: "Password" },
+                  // { name: "password", label: "Password" },
                   { name: "salary", label: "Salary" },
                   { name: "totalStudents", label: "Total Students" },
                   { name: "expertise", label: "Expertise" },
                   { name: "experienceYears", label: "Experience Years" },
                   { name: "address", label: "Address" },
-                ].map(({ name, label }) => {
-                  return (
-                    <Grid item xs={name == "address" ? 12 : 6} key={name}>
-                      <strong>{label}:</strong>
-                      <div style={{ color: "black", padding: "4px 0" }}>
-                        {formData[name] || "-"}
-                      </div>
-                    </Grid>
-                  );
-                })}
+                ].map(({ name, label }) => (
+                  <Grid item xs={name === "address" ? 12 : 6} key={name}>
+                    <div style={{ fontWeight: 600, color: "#555", marginBottom: "4px" }}>
+                      {label}
+                    </div>
+                    <div
+                      style={{
+                        color: "#222",
+                        padding: "8px 12px",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        background: "#fafafa",
+                      }}
+                    >
+                      {formData[name] || "-"}
+                    </div>
+                  </Grid>
+                ))}
               </Grid>
             </Grid>
           </DialogContent>
         ) : (
           <DialogContent>
-            <Grid container spacing={2} mt={1}>
-              {FIELD_CONFIG.map(({ name, label, type }) => (
-                <Grid item xs={12} sm={6} key={name}>
-                  <TextField
-                    fullWidth
-                    type={type || "text"}
-                    label={label}
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    error={!!errors[name]}
-                    helperText={errors[name]}
+            <Grid container spacing={3} mt={0}>
+              {/* Profile Image Upload OR Preview */}
+              <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
+                {infoOpen ? (
+                  // --- View Mode (Readonly image preview)
+                  <img
+                    src={formData.photo}
+                    alt="Profile"
+                    style={{
+                      width: "120px",
+                      height: "120px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
+                    }}
                   />
-                </Grid>
-              ))}
-
-              {/* Photo Upload */}
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="center">
-                  <UploadBox htmlFor="faculty-photo">
+                ) : (
+                  // --- Edit Mode (Upload image)
+                  <UploadBox
+                    htmlFor="faculty-photo"
+                    sx={{
+                      mb: "10px",
+                      width: "140px",
+                      height: "140px",
+                      borderRadius: "50%",
+                      border: "2px dashed #ccc",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      backgroundColor: "#f9fafb",
+                      position: "relative",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        borderColor: "#4f46e5",
+                        backgroundColor: "#eef2ff",
+                        transform: "scale(1.05)",
+                        boxShadow: "0px 4px 15px rgba(0,0,0,0.15)",
+                      },
+                    }}
+                  >
                     {formData.photo ? (
-                      <img src={formData.photo} style={{ height: "100%" }} alt="Preview" />
+                      <img
+                        src={formData.photo}
+                        alt="Preview"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          transition: "0.3s ease",
+                        }}
+                      />
                     ) : (
-                      <>
-                        <InsertPhotoIcon fontSize="large" />
-                        <span>Click to upload image</span>
-                      </>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          flexDirection: "column",
+                          padding: "10px",
+                          textAlign: "center",
+                          color: "#6b7280",
+                        }}
+                      >
+                        <MdOutlineInsertPhoto
+                          style={{
+                            fontSize: "40px",
+                            color: "#9ca3af",
+                          }}
+                        />
+                        <span style={{ fontSize: "14px", fontWeight: 500 }}>Click to upload</span>
+                      </Box>
                     )}
+
                     <input
                       type="file"
                       id="faculty-photo"
@@ -382,28 +524,60 @@ function Faculty() {
                       onChange={handleChange}
                     />
                   </UploadBox>
-                </Box>
-                {errors.photo && infoOpen == false && (
-                  <MDTypography variant="caption" color="error">
-                    {errors.photo}
-                  </MDTypography>
                 )}
               </Grid>
 
-              {OTHER_FIELDS.map(({ name, label, type, multiline, rows }) => (
-                <Grid item xs={12} sm={name === "address" ? 12 : 6} key={name}>
-                  <TextField
-                    fullWidth
-                    type={type || "text"}
-                    label={label}
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    error={!!errors[name]}
-                    helperText={errors[name]}
-                  />
-                </Grid>
-              ))}
+              {/* Info Section */}
+              <Grid container spacing={2} px={2}>
+                {[
+                  { name: "name", label: "Full Name" },
+                  { name: "email", label: "Email" },
+                  { name: "password", label: "Password", hideInView: true },
+                  { name: "salary", label: "Salary" },
+                  { name: "totalStudents", label: "Total Students" },
+                  { name: "expertise", label: "Expertise" },
+                  { name: "experienceYears", label: "Experience Years" },
+                  { name: "address", label: "Address" },
+                ].map(({ name, label, hideInView }) =>
+                  infoOpen ? (
+                    // --- View Mode (Readonly boxes)
+                    !hideInView && (
+                      <Grid item xs={name === "address" ? 12 : 6} key={name}>
+                        <div style={{ fontWeight: 600, color: "#555", marginBottom: "4px" }}>
+                          {label}
+                        </div>
+                        <div
+                          style={{
+                            color: "#222",
+                            padding: "8px 12px",
+                            border: "1px solid #ddd",
+                            borderRadius: "8px",
+                            background: "#fafafa",
+                          }}
+                        >
+                          {formData[name] || "-"}
+                        </div>
+                      </Grid>
+                    )
+                  ) : (
+                    // --- Edit Mode (TextFields)
+                    <Grid item xs={12} sm={name === "address" ? 12 : 6} key={name}>
+                      <TextField
+                        fullWidth
+                        type="text"
+                        label={label}
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        error={!!errors[name]}
+                        helperText={errors[name]}
+                        multiline={name === "address"}
+                        rows={name === "address" ? 3 : 1}
+                      />
+                    </Grid>
+                  )
+                )}
+              </Grid>
             </Grid>
           </DialogContent>
         )}

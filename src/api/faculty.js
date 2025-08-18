@@ -1,70 +1,21 @@
-import axios from "axios";
+import api from "./axiosInstance";
 
-axios.defaults.baseURL = "https://institute-backend-n2n3.onrender.com";
-// axios.defaults.baseURL = "http://localhost:5000";
-
-// ✅ Set token for all requests (if exists)
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export const addfaculty = async ({
-  name,
-  email,
-  password,
-  phone,
-  photo,
-  salary,
-  totalStudents,
-  address,
-  expertise,
-  experienceYears,
-}) => {
-  console.log({
-    name,
-    email,
-    password,
-    phone,
-    photo,
-    salary,
-    totalStudents,
-    address,
-    expertise,
-    experienceYears,
-  });
-
+// Add faculty
+export const addfaculty = async (data) => {
   try {
-    const response = await axios.post("/faculty/register", {
-      name,
-      email,
-      password,
-      phone,
-      photo,
-      salary,
-      totalStudents,
-      address,
-      expertise,
-      experienceYears,
-    });
-    console.log(response);
+    const response = await api.post("/faculty/register", data);
     return response.data;
   } catch (error) {
-    console.log(error);
-    throw error.response?.data || { message: "data creatation failed" };
+    throw error.response?.data || { message: "Faculty creation failed" };
   }
 };
 
+// Get all faculty
 export const getallfaculty = async () => {
   try {
-    const response = await axios.get("/faculty");
-    console.log(response);
+    const response = await api.get("/faculty");
     return response.data;
   } catch (error) {
-    console.log(error);
-    throw error.response?.data || { message: "data get failed" };
+    throw error.response?.data || { message: "Failed to fetch faculty" };
   }
 };
