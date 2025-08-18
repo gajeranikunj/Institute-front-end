@@ -1,0 +1,18 @@
+{
+  "framework": "react",
+  "frameworkVersion": "18",
+  "projectType": "cra",
+  "srcFolder": "src",
+  "pagesFolder": "src/layouts",
+  "componentsFolder": "src/components",
+  "assetsFolder": "public/assets",
+  "routing": {
+    "type": "react-router-dom",
+    "version": "6",
+    "routesFile": "src/routes.js"
+  },
+  "style": {
+    "type": "css",
+    "module": false
+  }
+}
